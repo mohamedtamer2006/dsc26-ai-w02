@@ -15,5 +15,8 @@ The standard snippet proposed for `best_threshold` used `np.unique` in ascending
 - Verified stable sorting in `precision_at_k`: tested tied scores to guarantee original input index preservation.
 - Checked ROC AUC edge cases: confirmed that when a column has only a single distinct value across all rows (including missingness as a value), it is protected from false alarm leakage detection.
 
+## Which function I wrote without AI, and why
+I implemented `precision_at_k` completely by hand without AI assistance. The specification requires strict stability where ties in scores preserve their original input order, as well as distinct boundary behaviors ($k \le 0$ raising a ValueError and $k > n$ clamping to $n$). Implementing it manually using Python's native stable Timsort (`sorted(range(n), key=lambda i: s_arr[i], reverse=True)[:k_eval]`) ensured zero risk of unexpected vectorization tie-breaking quirks.
+
 ## What I now understand that I didn't before
 I gained a much deeper understanding of target leakage via missingness indicators: a column that is only populated when an event has already occurred (such as post-investigation closure dates) can exhibit near-perfect AUC simply by its pattern of nulls, even if the non-null values themselves appear harmless. I also learned how to rigorously formulate cost-sensitive threshold selection rather than defaulting to arbitrary cutoffs like 0.5.
