@@ -1,0 +1,19 @@
+[project]
+name = "rawaj"
+version = "0.1.0"
+description = "Rawaj Pay data audit and metrics library"
+readme = "FRAMING.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=1.26.0",
+    "pandas>=2.2.0",
+    "scipy>=1.12.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

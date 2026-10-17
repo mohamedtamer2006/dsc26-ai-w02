@@ -1,0 +1,13 @@
+# Rawaj Pay: Mule Account Detection Problem Framing
+
+## Decision
+The core operational decision is whether to flag an instant transfer for manual investigation by Rawaj's fraud team or allow it to execute uninterrupted. With a team of five analysts, the capacity to inspect suspicious transactions is strictly limited. The decision rule balances operational bottleneck (preventing analyst alert fatigue from false positives) against catastrophic financial and regulatory exposure from undetected money mule operations (false negatives). Transfers exceeding the operational risk threshold are held for rapid review, while low-risk transactions proceed with zero customer friction.
+
+## Metric
+The primary decision metric is the expected operational cost combined with precision at the operational constraint ($k$ alerts per day). Since an undetected mule transaction (false negative) causes substantial regulatory penalties and direct fraud loss, while a false alarm (false positive) expends bounded analyst time, the optimal operating point minimizes $C = c_{fp} \cdot \text{FP} + c_{fn} \cdot \text{FN}$. To guarantee that analysts only review high-probability cases, we calibrate the decision boundary by tuning the classification threshold to maintain a guaranteed minimum precision target while maximizing recall.
+
+## Baseline
+The initial baseline against which any machine learning model must be evaluated is a deterministic rule-based heuristics engine. This engine flags accounts displaying textbook mule behavior: newly registered accounts receiving rapid burst transfers from multiple distinct sources followed by immediate full cash-out withdrawals. A secondary benchmark is a regularized logistic regression trained on basic transaction aggregate features (transfer frequency, amount deviation from historical norm, and velocity). Any proposed complex model must demonstrate statistically significant improvement in expected cost reduction and precision over this baseline.
+
+## Classical ML or LLM
+For high-throughput, low-latency transaction filtering, Classical Machine Learning (specifically gradient-boosted decision trees such as LightGBM or XGBoost) is vastly superior to Large Language Models. Classical tabular models operate in single-digit milliseconds, handle dense numerical transaction telemetry without high tokenization overhead, resist prompt injection, and offer exact feature attribution via SHAP values for regulatory reporting. LLMs or SLMs can be reserved downstream as asynchronous co-pilots to summarize case dossiers and explain suspicious transaction chains to the five human analysts during tier-2 investigation.
