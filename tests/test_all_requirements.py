@@ -2,17 +2,17 @@
 
 import math
 import os
+
 import numpy as np
 import pandas as pd
 import pytest
-
 from rawaj.audit import audit
 from rawaj.metrics import (
-    confusion_at,
-    precision_recall_at,
-    precision_at_k,
-    expected_cost,
     best_threshold,
+    confusion_at,
+    expected_cost,
+    precision_at_k,
+    precision_recall_at,
     threshold_for_precision,
 )
 

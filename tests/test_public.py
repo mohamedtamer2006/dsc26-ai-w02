@@ -1,10 +1,13 @@
-import numpy as np
 import pandas as pd
 import pytest
-
 from rawaj.audit import audit
-from rawaj.metrics import (best_threshold, confusion_at, precision_at_k,
-                           precision_recall_at, threshold_for_precision)
+from rawaj.metrics import (
+    best_threshold,
+    confusion_at,
+    precision_at_k,
+    precision_recall_at,
+    threshold_for_precision,
+)
 
 
 def small_extract():

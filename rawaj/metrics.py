@@ -1,14 +1,15 @@
 """Performance and decision metrics for binary classification and threshold selection."""
 
 import math
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
+
 import numpy as np
 
 
 def _validate_inputs(
-    y_true: Union[Sequence, np.ndarray],
-    scores: Union[Sequence, np.ndarray],
-) -> Tuple[np.ndarray, np.ndarray]:
+    y_true: Sequence | np.ndarray,
+    scores: Sequence | np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
     """Validate y_true and scores inputs according to specification."""
     try:
         y_arr = np.asarray(y_true)
@@ -30,11 +31,10 @@ def _validate_inputs(
     # Allow bool or 0/1 integers or floats equal to 0.0 / 1.0
     for y in y_arr:
         if isinstance(y, (bool, np.bool_)):
-            val = int(y)
-        elif isinstance(y, (int, float, np.integer, np.floating)):
+            continue
+        if isinstance(y, (int, float, np.integer, np.floating)):
             if np.isnan(y) or y not in (0, 1):
                 raise ValueError(f"Labels must be 0 or 1, got {y}")
-            val = int(y)
         else:
             raise ValueError(f"Labels must be 0 or 1, got {y}")
 
@@ -43,10 +43,10 @@ def _validate_inputs(
 
 
 def confusion_at(
-    y_true: Union[Sequence, np.ndarray],
-    scores: Union[Sequence, np.ndarray],
+    y_true: Sequence | np.ndarray,
+    scores: Sequence | np.ndarray,
     threshold: float,
-) -> Dict[str, int]:
+) -> dict[str, int]:
     """Compute confusion matrix at a given threshold.
 
     A case is flagged when score >= threshold.
@@ -63,10 +63,10 @@ def confusion_at(
 
 
 def precision_recall_at(
-    y_true: Union[Sequence, np.ndarray],
-    scores: Union[Sequence, np.ndarray],
+    y_true: Sequence | np.ndarray,
+    scores: Sequence | np.ndarray,
     threshold: float,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """Compute (precision, recall) at a given threshold.
 
     Precision is 0.0 when nothing is flagged.
@@ -91,8 +91,8 @@ def precision_recall_at(
 
 
 def precision_at_k(
-    y_true: Union[Sequence, np.ndarray],
-    scores: Union[Sequence, np.ndarray],
+    y_true: Sequence | np.ndarray,
+    scores: Sequence | np.ndarray,
     k: int,
 ) -> float:
     """Compute precision at top k ranked scores.
@@ -116,8 +116,8 @@ def precision_at_k(
 
 
 def expected_cost(
-    y_true: Union[Sequence, np.ndarray],
-    scores: Union[Sequence, np.ndarray],
+    y_true: Sequence | np.ndarray,
+    scores: Sequence | np.ndarray,
     threshold: float,
     *,
     cost_fp: float,
@@ -129,8 +129,8 @@ def expected_cost(
 
 
 def best_threshold(
-    y_true: Union[Sequence, np.ndarray],
-    scores: Union[Sequence, np.ndarray],
+    y_true: Sequence | np.ndarray,
+    scores: Sequence | np.ndarray,
     *,
     cost_fp: float,
     cost_fn: float,
@@ -160,10 +160,10 @@ def best_threshold(
 
 
 def threshold_for_precision(
-    y_true: Union[Sequence, np.ndarray],
-    scores: Union[Sequence, np.ndarray],
+    y_true: Sequence | np.ndarray,
+    scores: Sequence | np.ndarray,
     min_precision: float,
-) -> Optional[float]:
+) -> float | None:
     """Find the lowest threshold among distinct scores whose precision is >= min_precision.
 
     Returns None if no threshold reaches the required precision.
@@ -171,7 +171,7 @@ def threshold_for_precision(
     y_arr, s_arr = _validate_inputs(y_true, scores)
     distinct_scores = sorted(set(s_arr.tolist()))
 
-    valid_thresholds: List[float] = []
+    valid_thresholds: list[float] = []
     for thresh in distinct_scores:
         prec, _ = precision_recall_at(y_arr, s_arr, thresh)
         if prec >= min_precision:

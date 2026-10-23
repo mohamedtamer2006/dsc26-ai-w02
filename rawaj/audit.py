@@ -1,7 +1,8 @@
 """Data audit module for Rawaj Pay transaction extract."""
 
 from collections import Counter
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 import numpy as np
 import pandas as pd
 
@@ -26,7 +27,7 @@ def _is_missing_series(s: pd.Series) -> pd.Series:
     return isna | is_blank
 
 
-def _compute_roc_auc(y_true: np.ndarray, scores: np.ndarray) -> Optional[float]:
+def _compute_roc_auc(y_true: np.ndarray, scores: np.ndarray) -> float | None:
     """Compute ROC AUC score using Mann-Whitney U statistic."""
     y = np.asarray(y_true, dtype=int)
     s = np.asarray(scores, dtype=float)
@@ -66,7 +67,7 @@ def audit(
     target: str,
     id_col: str,
     time_col: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Audit a tabular dataset extract according to Rawaj specification.
 
     Raises KeyError if any of the three named columns is missing.
@@ -78,8 +79,8 @@ def audit(
     n_rows = len(df)
 
     # 1. Missingness fraction per column
-    missing: Dict[str, float] = {}
-    missing_series_dict: Dict[str, pd.Series] = {}
+    missing: dict[str, float] = {}
+    missing_series_dict: dict[str, pd.Series] = {}
     for col in df.columns:
         m_ser = _is_missing_series(df[col])
         missing_series_dict[col] = m_ser
@@ -95,7 +96,7 @@ def audit(
     duplicate_rows = int(df.duplicated(keep="first").sum())
 
     # 4. Constant columns (columns other than target with <= 1 distinct non-missing value)
-    constant_columns: List[str] = []
+    constant_columns: list[str] = []
     for col in df.columns:
         if col == target:
             continue
@@ -152,7 +153,7 @@ def audit(
             ]
 
     # 7. Leakage suspects
-    leakage_suspects: List[str] = []
+    leakage_suspects: list[str] = []
     labelled_mask = ~target_missing
     labelled_df = df.loc[labelled_mask]
 
